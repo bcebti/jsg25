@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function(){
+            $("#txtEmail").blur(function(){
+               
+                let obj={
+                    type:"get",
+                    url:"/do-chek-email",
+                    data:{
+                        KuchBhi:$("#txtEmail").val(),
+                        //y:$("#txtPwd").val()
+                    }
+                }
+
+                //sending AJAX Call
+                $.ajax(obj)
+                .then(function(response)  //call back Function- jab response wapis aayega Khushi Khushi
+                {
+                    //alert(response);
+                    $("#res").html(response)
+                }).fail(function(err) //Jab error on server side :-(
+                {
+                    alert(err)
+                })
+            })
+
+            //========================
+            $("#btnRecover").click(function(){
+                let obj={
+                    type:"get",
+                    url:"/do-fetch-pwd",
+                    data:{
+                        KuchBhi:$("#txtEmail").val(),
+                        //y:$("#txtPwd").val()
+                    }
+                }
+
+                //sending AJAX Call
+                $.ajax(obj)
+                .then(function(responseInJsonAry)  //call back Function- jab response wapis aayega Khushi Khushi
+                {
+                    //alert(JSON.stringify(responseInJsonAry));
+                    alert(responseInJsonAry+"");
+                    $("#res").html("Ur Pasword: "+responseInJsonAry[0].pwd)
+                    
+                }).fail(function(err) //Jab error on server side :-(
+                {
+                    alert(err)
+                })
+            })
+            //------------------------------------------
+            $("#btnSearch").click(function(){
+                let obj={
+                    type:"get",
+                    url:"/do-fetch-one",
+                    data:{
+                        KuchBhi:$("#txtEmail").val(),
+                        //y:$("#txtPwd").val()
+                    }
+                }
+
+                //sending AJAX Call
+                $.ajax(obj)
+                .then(function(responseInJsonAry)  //call back Function- jab response wapis aayega Khushi Khushi
+                {
+                    if(responseInJsonAry.length==0)
+                        alert("Invalid Email Id /Password");
+                    else
+                    {
+                        alert(JSON.stringify(responseInJsonAry));
+                        $("#txtPwd").val(responseInJsonAry[0].pwd);
+                        let dt=responseInJsonAry[0].dob.substr(0,10);
+                        // alert(dt);
+                        $("#txtDob").val(dt);
+                        $("#prev").prop("src",responseInJsonAry[0].picurl)
+                        $("#hdn").val(responseInJsonAry[0].picurl);
+                    }
+                    
+                    
+                }).fail(function(err) //Jab error on server side :-(
+                {
+                    alert(err.message)
+                })
+            })
+            
+            //======================
+            
+
+        });
+
+        function doShowPrev(fileUpload,prev)
+        {
+            prev.src = window.URL.createObjectURL(fileUpload.files[0])
+        }
+    </script>
+
+</head>
+<body>
+    <center>
+        <form action="/curd-save" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="hdn" name="hdnFrm" >
+            <p>
+                Email Id <input type="text" name="txtEmail" id="txtEmail" >
+                <input type="button" value="Search" id="btnSearch"  >
+                
+                <input type="button" id="btnRecover" value="Recover Password" formaction="/do-fetch-pwd">
+
+                <div id="res">*</div>
+            </p>
+            <p>
+                Password <input type="password" name="txtPwd" id="txtPwd">
+            </p>
+            <p>
+                Date Odf Birth <input type="date" name="txtDob" id="txtDob">
+            </p>
+            <p>
+                Profile Pic <input type="file" name="ppic" id="fileUpload" onchange="doShowPrev(fileUpload,prev);">
+                <br>
+                <img src="" width="100" height="100" alt="" id="prev">
+            </p>
+            <p>
+                <input type="submit" value="Send to Server">
+                <input type="submit" value="Give an Update to Server" formaction="/do-update">
+                <input type="submit" value="Delete" formaction="/do-delete">
+                <input type="submit" value="Show All" formaction="/do-fetch-all">
+            </p>
+
+        </form>
+    </center>
+    
+</body>
+</html>
